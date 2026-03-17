@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,10 +19,10 @@ class Resource extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'features'  => 'array',
     ];
 
-    // Связи
-    public function bronirovaniya()
+    public function bookings() // ← лучше назвать bookings (англ), а не bronirovaniya
     {
         return $this->hasMany(Booking::class);
     }
@@ -33,13 +32,11 @@ class Resource extends Model
         return $this->hasMany(Review::class);
     }
 
-    // Scope для активных бань
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    // Средний рейтинг (будет полезно позже)
     public function getAverageRatingAttribute()
     {
         return $this->reviews()->avg('rating') ?? 0;

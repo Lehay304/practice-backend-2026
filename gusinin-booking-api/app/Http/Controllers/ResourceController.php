@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Resource;
@@ -7,94 +6,74 @@ use Illuminate\Http\Request;
 
 class ResourceController extends Controller
 {
-    /**
-     * Показать список всех бань (доступно всем авторизованным)
-     */
     public function index()
     {
-        $banyas = Resource::active()->paginate(10);
-
+        $resources = Resource::active()->paginate(10);
         return response()->json([
-            'message' => 'Список доступных бань и парных',
-            'data'    => $banyas
+            'message' => 'Список доступных ресурсов',
+            'data'    => $resources
         ]);
     }
 
-    /**
-     * Показать одну баню
-     */
     public function show(Resource $resource)
     {
         return response()->json([
-            'message' => 'Информация о бане',
+            'message' => 'Информация о ресурсе',
             'data'    => $resource->load('reviews')
         ]);
     }
 
-    /**
-     * Создать новую баню (только admin)
-     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
             'location'    => 'required|string|max:255',
             'capacity'    => 'required|integer|min:1',
             'features'    => 'nullable|array',
-            'features.*'  => 'string',
-            'is_active'   => 'boolean',
+            'features.*'  => 'string|max:255',
+            'is_active'   => 'sometimes|boolean',
         ]);
 
-        $banya = Resource::create([
-            'name'        => $request->name,
-            'description' => $request->description,
-            'location'    => $request->location,
-            'capacity'    => $request->capacity,
-            'features'    => $request->features,
-            'is_active'   => $request->is_active ?? true,
-        ]);
+        $resource = Resource::create($validated);
 
         return response()->json([
-            'message' => 'Новая баня успешно добавлена!',
-            'data'    => $banya
+            'message' => 'Ресурс успешно создан',
+            'data'    => $resource
         ], 201);
     }
 
-    /**
-     * Обновить баню (только admin)
-     */
     public function update(Request $request, Resource $resource)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name'        => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'location'    => 'sometimes|string|max:255',
             'capacity'    => 'sometimes|integer|min:1',
             'features'    => 'nullable|array',
-            'features.*'  => 'string',
-            'is_active'   => 'boolean',
+            'features.*'  => 'string|max:255',
+            'is_active'   => 'sometimes|boolean',
         ]);
 
-        $resource->update($request->only([
-            'name', 'description', 'location', 'capacity', 'features', 'is_active'
-        ]));
+        // Если features не передан — не перезаписываем
+        if (!$request->has('features')) {
+            unset($validated['features']);
+        }
+
+        $resource->update($validated);
 
         return response()->json([
-            'message' => 'Информация о бане обновлена',
+            'message' => 'Ресурс обновлён',
             'data'    => $resource
         ]);
     }
 
-    /**
-     * Удалить баню (только admin)
-     */
     public function destroy(Resource $resource)
     {
-        $resource->delete();
+        $resource->delete(); // или soft delete, если нужно
 
         return response()->json([
-            'message' => 'Баня успешно удалена'
+            'message' => 'Ресурс удалён'
         ], 200);
     }
 }

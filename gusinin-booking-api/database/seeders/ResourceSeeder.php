@@ -14,7 +14,7 @@ class ResourceSeeder extends Seeder
             'description' => 'Роскошная русская парная на 6 человек с дубовыми полками',
             'location'    => 'Корпус A, 1 этаж',
             'capacity'    => 6,
-            'features'    => 'Пар, берёзовые и дубовые веники, душ, температура до 110°C, ароматерапия',
+            'features'    => ['Пар', 'берёзовые веники', 'душ', 'бассейн'],
             'is_active'   => true,
         ]);
 
@@ -23,7 +23,7 @@ class ResourceSeeder extends Seeder
             'description' => 'Классическая сухая сауна с температурой до 100°C',
             'location'    => 'Корпус B, 2 этаж',
             'capacity'    => 8,
-            'features'    => 'Сухой жар, каменка, температура до 100°C, освещение RGB',
+            'features'    => ['Сухой жар', 'каменка', 'освещение RGB'],
             'is_active'   => true,
         ]);
 
@@ -32,7 +32,7 @@ class ResourceSeeder extends Seeder
             'description' => 'Современная ИК-кабина на 4 человека',
             'location'    => 'Зона SPA',
             'capacity'    => 4,
-            'features'    => 'Инфракрасный прогрев, музыка, ароматерапия, низкая влажность',
+            'features'    => ['Инфракрасный прогрев', 'музыка', 'ароматерапия', 'низкая влажность'],
             'is_active'   => true,
         ]);
     }
