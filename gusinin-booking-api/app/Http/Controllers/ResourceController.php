@@ -10,7 +10,7 @@ class ResourceController extends Controller
     {
         $resources = Resource::active()->paginate(10);
         return response()->json([
-            'message' => 'Список доступных ресурсов',
+            'message' => 'Список доступных мест',
             'data'    => $resources
         ]);
     }
@@ -18,7 +18,7 @@ class ResourceController extends Controller
     public function show(Resource $resource)
     {
         return response()->json([
-            'message' => 'Информация о ресурсе',
+            'message' => 'Информация о месте',
             'data'    => $resource->load('reviews')
         ]);
     }
@@ -38,7 +38,7 @@ class ResourceController extends Controller
         $resource = Resource::create($validated);
 
         return response()->json([
-            'message' => 'Ресурс успешно создан',
+            'message' => 'Место успешно создано',
             'data'    => $resource
         ], 201);
     }
@@ -55,7 +55,6 @@ class ResourceController extends Controller
             'is_active'   => 'sometimes|boolean',
         ]);
 
-        // Если features не передан — не перезаписываем
         if (!$request->has('features')) {
             unset($validated['features']);
         }
@@ -63,17 +62,17 @@ class ResourceController extends Controller
         $resource->update($validated);
 
         return response()->json([
-            'message' => 'Ресурс обновлён',
+            'message' => 'Место обновлёно',
             'data'    => $resource
         ]);
     }
 
     public function destroy(Resource $resource)
     {
-        $resource->delete(); // или soft delete, если нужно
+        $resource->delete();
 
         return response()->json([
-            'message' => 'Ресурс удалён'
+            'message' => 'Место удалёно'
         ], 200);
     }
 }

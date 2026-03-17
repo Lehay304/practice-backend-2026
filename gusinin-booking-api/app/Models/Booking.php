@@ -35,18 +35,16 @@ class Booking extends Model
         return $this->hasOne(Review::class);
     }
 
-    // Проверка пересечения времени (ключевой метод для чекпоинта 3)
+    // Проверка пересечения времени 
     public function scopeOverlapping($query, $resourceId, $start, $end)
     {
         return $query->where('resource_id', $resourceId)
-                     ->where('status', 'active')
-                     ->where(function ($q) use ($start, $end) {
-                         $q->whereBetween('start_time', [$start, $end])
-                           ->orWhereBetween('end_time', [$start, $end])
-                           ->orWhere(function ($q) use ($start, $end) {
-                               $q->where('start_time', '<', $start)
-                                 ->where('end_time', '>', $end);
-                           });
-                     });
+            ->where('status', 'active') // Только активные бронирования считаем
+            ->where(function ($q) use ($start, $end) {
+                // Пересечение есть, если:
+                // (start1 < end2) AND (start2 < end1)
+                $q->where('start_time', '<', $end)
+                ->where('end_time', '>', $start);
+            });
     }
 }
