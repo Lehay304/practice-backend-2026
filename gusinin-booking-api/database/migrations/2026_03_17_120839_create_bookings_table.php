@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reviews', function (Blueprint $table) {
+        Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('resource_id')->constrained()->onDelete('cascade');
-            $table->foreignId('booking_id')->constrained()->onDelete('cascade');
-            $table->tinyInteger('rating')->unsigned()->comment('от 1 до 5');
-            $table->text('comment')->nullable();
+            $table->foreignId('resource_id')->constrained()->onDelete('cascade'); // бронируем баню
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
+            $table->enum('status', ['active', 'cancelled', 'completed'])->default('active');
             $table->timestamps();
+            $table->index(['resource_id', 'start_time', 'end_time']);
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('reviews');
+        Schema::dropIfExists('bookings');
     }
 };
