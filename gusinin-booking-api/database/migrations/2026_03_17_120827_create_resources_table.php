@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('location'); // это адрес или номер комнаты в бане
             $table->unsignedInteger('capacity'); // вместимость это вместимость
-            $table->json('features')->nullable(); // это всякие приблуды по типу: 'пар', 'веники', 'душ', 'температура_110']
+            $table->text('features')->nullable(); // это всякие приблуды по типу: 'пар', 'веники', 'душ', 'температура_110']
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
