@@ -1,59 +1,101 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Booking API
+Система бронирования ресурсов (переговорки, рабочие места) для преддипломной практики.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## About Laravel
+# СТЕК
+PHP 8.2+ / Laravel 12.52.1
+MySQL 8.0+
+JWT-аутентификация (Laravel Sanctum)
+Docker / Docker Compose
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+# ЧТО РЕАЛЬЗОВАННО
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. JWT-аутентификация: регистрация, логин, профиль, logout
+2. Роли: admin и user
+3. Расписание: список, фильтры, пагинация, расписание на день/неделю
+4. Поиск свободных ресурсов по дате и времени
+5. Бронирование: создание, отмена, конфликты по времени
+6. Отзывы: только после завершенного бронирования, средний рейтинг
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+# Список эндпоинтов
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# Авторизация
+POST | /api/register | Все (публично)
+Регистрирует нового пользователя в системе. Принимает имя, email, пароль и роль (admin/user). Возвращает данные пользователя и токен доступа.
 
-## Laravel Sponsors
+POST | /api/login | Все (публично)
+Авторизует пользователя по email и паролю. Возвращает токен доступа (Bearer token) для последующих запросов.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+POST | /api/logout | Все авторизованные
+Завершает сеанс пользователя. Аннулирует текущий токен доступа, требуя повторного входа для новых запросов.
 
-### Premium Partners
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
 
-## Contributing
+# Ресурсы (бани)
+GET | /api/resources | Все авторизованные
+Возвращает пагинированный список всех активных бань. Включает средний рейтинг каждого ресурса.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+GET | /api/resources/{id} | Все авторизованные
+Возвращает подробную информацию о конкретном ресурсе: название, описание, местоположение, вместимость, характеристики, средний рейтинг и список отзывов.
 
-## Code of Conduct
+GET | /api/resources/search | Все авторизованные
+Поиск свободных ресурсов на заданное время. Фильтрует по дате, времени начала/окончания, вместимости и характеристикам (например, "пар", "бассейн"). Исключает ресурсы с пересекающимися бронированиями.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+GET | /api/resources/{id}/schedule | Все авторизованные
+Показывает расписание конкретного ресурса на указанную дату. Возвращает список всех активных бронирований с временем начала/окончания и именем пользователя.
 
-## Security Vulnerabilities
+GET | /api/resources/{id}/schedule/week | Все авторизованные
+Возвращает расписание конкретного ресурса на неделю. Группирует бронирования по датам. Показывает все активные бронирования с временем начала/окончания, статусом и именем пользователя. Если дата начала не указана, показывает расписание начиная с сегодня.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+GET | /api/resources/{id}/reviews | Все авторизованные
+Возвращает пагинированный список всех отзывов для конкретного ресурса. Включает рейтинг, комментарий, имя автора и средний рейтинг ресурса.
 
-## License
+POST | /api/resources | Только админ
+Создаёт новый ресурс (баню). Принимает название, описание, местоположение, вместимость, массив характеристик и статус активности.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+PUT | /api/resources/{id} | Только админ
+Полностью обновляет информацию о ресурсе. Все поля необязательны (обновляются только переданные).
+
+PATCH | /api/resources/{id} | Только админ
+Частично обновляет информацию о ресурсе (аналогично PUT, но для частичных изменений).
+
+DELETE | /api/resources/{id} | Только админ
+Удаляет ресурс из системы. Каскадно удаляет связанные бронирования и отзывы.
+
+
+
+# Бронирования
+GET | /api/bookings | Все авторизованные
+Возвращает список бронирований. Обычный пользователь видит только свои, администратор — все бронирования системы.
+
+GET | /api/bookings/{id} | Все авторизованные
+Возвращает подробную информацию о конкретном бронировании: ресурс, пользователь, время начала/окончания, статус. Пользователь видит только свои, админ — любые.
+
+POST | /api/bookings | Все авторизованные
+Создаёт новое бронирование. Проверяет, что ресурс активен и время не пересекается с существующими бронированиями. Возвращает ошибку 409 при конфликте времени.
+
+POST | /api/bookings/{id}/cancel | Все авторизованные
+Отменяет бронирование. Пользователь может отменить только своё активное бронирование, администратор — любое. Меняет статус на 'cancelled'.
+
+POST | /api/bookings/{id}/complete | Только админ
+Завершает бронирование после оказания услуги. Меняет статус на 'completed'. Необходимо для возможности оставить отзыв.
+
+
+
+# Отзывы
+GET | /api/reviews/{id} | Все авторизованные
+Возвращает подробную информацию об одном отзыве: рейтинг, комментарий, автор, ресурс, дата создания.
+
+POST | /api/reviews | Все авторизованные
+Создаёт новый отзыв. Проверяет, что бронирование принадлежит пользователю, имеет статус 'completed' и время окончания в прошлом. Один отзыв на одно бронирование.
+
+PUT | /api/reviews/{id} | Все авторизованные
+Обновляет существующий отзыв. Пользователь может редактировать только свой отзыв и только в течение 24 часов после создания. Админ может редактировать любые.
+
+DELETE | /api/reviews/{id} | Все авторизованные
+Удаляет отзыв. Пользователь может удалить только свой, администратор — любой отзыв в системе.

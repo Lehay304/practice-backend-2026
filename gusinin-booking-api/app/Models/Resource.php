@@ -22,7 +22,9 @@ class Resource extends Model
         'features'  => 'array',
     ];
 
-    public function bookings() // ← лучше назвать bookings (англ), а не bronirovaniya
+    protected $appends = ['average_rating'];
+
+    public function bronirovaniya()
     {
         return $this->hasMany(Booking::class);
     }
@@ -39,6 +41,6 @@ class Resource extends Model
 
     public function getAverageRatingAttribute()
     {
-        return $this->reviews()->avg('rating') ?? 0;
+        return round($this->reviews()->avg('rating') ?? 0, 2);
     }
 }

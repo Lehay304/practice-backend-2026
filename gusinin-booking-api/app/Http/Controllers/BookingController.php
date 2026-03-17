@@ -135,6 +135,12 @@ class BookingController extends Controller
             ], 400);
         }
 
+        if ($booking->end_time->isFuture()) {
+            return response()->json([
+                'message' => 'Нельзя завершить бронирование, которое ещё не закончилось'
+            ], 400);
+        }
+
         $booking->update(['status' => 'completed']);
 
         return response()->json([
