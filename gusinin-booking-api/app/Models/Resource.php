@@ -41,6 +41,10 @@ class Resource extends Model
 
     public function getAverageRatingAttribute()
     {
+        if (isset($this->attributes['reviews_avg_rating'])) {
+            return round($this->attributes['reviews_avg_rating'], 2);
+        }
         return round($this->reviews()->avg('rating') ?? 0, 2);
     }
+
 }

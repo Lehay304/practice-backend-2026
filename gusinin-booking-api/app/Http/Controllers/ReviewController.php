@@ -6,6 +6,7 @@ use App\Models\Review;
 use App\Models\Booking;
 use App\Models\Resource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ReviewController extends Controller
 {
@@ -32,6 +33,7 @@ class ReviewController extends Controller
     // Создание отзыва только после завершённого бронирования
     public function store(Request $request)
     {
+
         $user = $request->user();
 
         $validated = $request->validate([
@@ -40,24 +42,23 @@ class ReviewController extends Controller
             'comment'    => 'nullable|string|max:1000',
         ]);
 
-        $booking = Booking::with('banya')->find($validated['booking_id']);
+        $booking = Booking::find($validated['booking_id']);
 
-        // Проверка 1 это бронирование этого пользователя
+        // Проверка: это бронирование пользователя
         if ($booking->user_id !== $user->id) {
             return response()->json([
                 'message' => 'Вы можете оставить отзыв только за своё бронирование'
             ], 403);
         }
 
-        // Проверка 2 бронирование должно быть завершено
+        // Проверка: бронирование должно быть завершено
         if ($booking->status !== 'completed') {
             return response()->json([
-                'message' => 'Отзыв можно оставить только после завершённого бронирования',
-                'current_status' => $booking->status
+                'message' => 'Отзыв можно оставить только после завершённого бронирования'
             ], 400);
         }
 
-        // Проверка отзыва на то что ещё не оставлен
+        // Проверка: отзыв ещё не оставлен
         $existingReview = Review::where('booking_id', $booking->id)->first();
         if ($existingReview) {
             return response()->json([
@@ -65,14 +66,6 @@ class ReviewController extends Controller
             ], 400);
         }
 
-        // Проверка бронирования должно быть в прошлом
-        if ($booking->end_time->isFuture()) {
-            return response()->json([
-                'message' => 'Нельзя оставить отзыв до окончания бронирования'
-            ], 400);
-        }
-
-        // Создание отзыва
         $review = Review::create([
             'user_id'      => $user->id,
             'resource_id'  => $booking->resource_id,

@@ -14,7 +14,11 @@ Route::post('/login', [AuthController::class, 'login']);
 // Защищённые маршруты (требуют токен)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-
+    
+    Route::get('/resources/search', [ResourceController::class, 'search']);
+    
+    Route::get('/resources', [ResourceController::class, 'index']);
+    Route::get('/resources/{resource}', [ResourceController::class, 'show']);
     // Бронь
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::get('/bookings/{booking}', [BookingController::class, 'show']);
@@ -28,10 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Просмотр бань доступен всем авторизованным
-    Route::get('/resources', [ResourceController::class, 'index']);
-    Route::get('/resources/{resource}', [ResourceController::class, 'show']);
     Route::get('/resources/{resource}/schedule', [ResourceController::class, 'schedule']);
-    Route::get('/resources/search', [ResourceController::class, 'search']);
     Route::get('/resources/{resource}/schedule/week', [ResourceController::class, 'scheduleWeek']);
 
     // Просмотр отзывов на бани
